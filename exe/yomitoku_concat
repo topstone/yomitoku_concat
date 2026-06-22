@@ -1,0 +1,6 @@
+Dir.glob("*.csv").sort.each do |filename|
+  basename = File.basename(filename, ".csv")
+  lines = File.readlines(filename, chomp: true)
+  lines.each { |line| puts line.gsub(/\A"|"\z/, "") }
+  puts basename
+end
