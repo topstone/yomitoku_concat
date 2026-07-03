@@ -1,0 +1,12 @@
+Dir.glob("*.csv").sort.each do |filename|
+  basename = File.basename(filename, ".csv")
+  lines = File.readlines(filename, chomp: true).map { |line| line.gsub(/\A"|"\z/, "") }
+
+  puts "■正■"
+  lines.each { |line| puts line }
+
+  puts "■逆■"
+  lines.reverse.each { |line| puts line }
+
+  puts "[#{basename}]"
+end
