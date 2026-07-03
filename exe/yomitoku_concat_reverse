@@ -1,12 +1,25 @@
+require "csv"
+
+all_blocks = []
+
 Dir.glob("*.csv").sort.each do |filename|
   basename = File.basename(filename, ".csv")
-  lines = File.readlines(filename, chomp: true).map { |line| line.gsub(/\A"|"\z/, "") }
+  warn "処理中: #{basename}"
 
-  puts "■正■"
-  lines.each { |line| puts line }
+  # 改行コード(CRLF/LF)の混在で CSV::MalformedCSVError
+  # ("Illegal end-of-line sequence...") になるのを防ぐため、
+  # 先にテキストとして読み込み \r\n / \r を \n に統一してから parse する。
+  content = File.read(filename, encoding: "bom|utf-8")
+  content = content.gsub(/\r\n?/, "\n")
 
-  puts "■逆■"
-  lines.reverse.each { |line| puts line }
+  CSV.parse(content, liberal_parsing: true, row_sep: "\n").each do |row|
+    field = row[0]
+    lines = field.to_s.split("\n")
+    next if lines.empty? # 空行(空セル)は正順・逆順とも出力不要
 
-  puts "[#{basename}]"
+    block = ["■正■", *lines, "■逆■", *lines.reverse, "[#{basename}]"]
+    all_blocks << block.join("\n")
+  end
 end
+
+puts all_blocks.join("\n\n")
